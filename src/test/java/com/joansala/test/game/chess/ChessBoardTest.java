@@ -1,10 +1,10 @@
-package com.joansala.game.chess;
+package com.joansala.test.game.chess;
 
 import java.io.FileInputStream;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.*;
 import com.joansala.engine.Board;
-import com.joansala.engine.BoardContract;
+import com.joansala.test.engine.BoardContract;
 import com.joansala.game.chess.ChessBoard;
 import com.joansala.util.suites.Suite;
 import com.joansala.util.suites.SuiteReader;
