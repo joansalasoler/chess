@@ -37,7 +37,7 @@ public class ChessRoots extends UCTRoots {
      * Creates an opening book instance.
      */
     public ChessRoots() throws IOException {
-        this(getResourcePath(ROOTS_PATH));
+        this(ROOTS_PATH);
     }
 
 
@@ -47,7 +47,7 @@ public class ChessRoots extends UCTRoots {
      * @param path      Database path
      */
     public ChessRoots(String path) throws IOException {
-        super(path);
+        super(getResourcePath(path));
         setDisturbance(ROOT_DISTURBANCE);
         setThreshold(ROOT_THRESHOLD);
         setInfinity(MAX_SCORE);
@@ -58,6 +58,6 @@ public class ChessRoots extends UCTRoots {
      * Obtain a path to the given resource file.
      */
     private static String getResourcePath(String path) {
-        return UCTRoots.class.getResource(path).getFile();
+        return ChessRoots.class.getResource(path).getFile();
     }
 }
