@@ -161,7 +161,7 @@ final class Chess {
     // Openings book
     // -------------------------------------------------------------------
 
-    /** Minimum score for an opening move to be choosen */
+    /** Minimum score for an opening move to be chosen */
     static final double ROOT_THRESHOLD = -250.0D;
 
     /** Threshold on the highest opening move reward */

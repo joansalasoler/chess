@@ -87,7 +87,7 @@ public class ChessModule extends BaseModule {
 
 
     /**
-     * Exectues the command line interface.
+     * Executes the command line interface.
      *
      * @param args      Command line parameters
      */
