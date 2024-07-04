@@ -30,7 +30,7 @@ import static com.joansala.game.chess.ChessGame.*;
 public class ChessRoots extends UCTRoots {
 
     /** Default path of the book database */
-    public static final String ROOTS_PATH = "/chess-roots.bin";
+    public static final String ROOTS_PATH = "chess-roots.bin";
 
 
     /**
@@ -47,17 +47,9 @@ public class ChessRoots extends UCTRoots {
      * @param path      Database path
      */
     public ChessRoots(String path) throws IOException {
-        super(getResourcePath(path));
+        super(path);
         setDisturbance(ROOT_DISTURBANCE);
         setThreshold(ROOT_THRESHOLD);
         setInfinity(MAX_SCORE);
-    }
-
-
-    /**
-     * Obtain a path to the given resource file.
-     */
-    private static String getResourcePath(String path) {
-        return ChessRoots.class.getResource(path).getFile();
     }
 }
