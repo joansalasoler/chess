@@ -1,0 +1,30 @@
+[
+    {
+        "name": "com.joansala.game.chess.ChessBoard",
+        "allDeclaredConstructors": true,
+        "allPublicConstructors": true,
+        "allDeclaredMethods": true,
+        "allPublicMethods": true
+    },
+    {
+        "name": "com.joansala.game.chess.ChessGame",
+        "allDeclaredConstructors": true,
+        "allPublicConstructors": true,
+        "allDeclaredMethods": true,
+        "allPublicMethods": true
+    },
+    {
+        "name": "com.joansala.game.chess.ChessRoots",
+        "allDeclaredConstructors": true,
+        "allPublicConstructors": true,
+        "allDeclaredMethods": true,
+        "allPublicMethods": true
+    },
+    {
+        "name": "com.joansala.game.chess.ChessModule",
+        "allDeclaredConstructors": true,
+        "allPublicConstructors": true,
+        "allDeclaredMethods": true,
+        "allPublicMethods": true
+    }
+]
