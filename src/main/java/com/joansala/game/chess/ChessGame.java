@@ -1,5 +1,7 @@
 package com.joansala.game.chess;
 
+import java.io.IOException;
+
 /*
  * Aalina engine.
  * Copyright (C) 2021-2024 Joan Sala Soler <contact@joansala.com>
@@ -21,6 +23,8 @@ package com.joansala.game.chess;
 import java.util.Arrays;
 import com.joansala.engine.Board;
 import com.joansala.engine.base.BaseGame;
+import com.joansala.game.chess.Chess.Castle;
+import com.joansala.game.chess.Chess.Player;
 import com.joansala.util.hash.ZobristHash;
 import static com.joansala.util.bits.Bits.*;
 import static com.joansala.game.chess.Chess.*;
@@ -557,7 +561,7 @@ public class ChessGame extends BaseGame {
     private boolean isRepetition() {
         boolean found = false;
 
-        for (int n = index; n > advance; n -= 2) {
+        for (int n = index - 1; n > advance; n -= 2) {
             if (hashes[n] == this.hash) {
                 if (found) return true;
                 found = true;
