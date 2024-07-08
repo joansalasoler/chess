@@ -55,117 +55,107 @@ import com.joansala.engine.Game;
  * |           and all the rooks that can castle      |
  * +--------------------------------------------------+
  */
-final class Chess {
+public final class Chess {
 
     // -------------------------------------------------------------------
     // Game logic constants
     // -------------------------------------------------------------------
 
     /** Number of checkers on the board */
-    static final int BOARD_SIZE = 64;
+    public static final int BOARD_SIZE = 64;
 
     /** Number of rows on the board */
-    static final int BOARD_RANKS = 8;
+    public static final int BOARD_RANKS = 8;
 
     /** Number of columns on the board */
-    static final int BOARD_FILES = 8;
+    public static final int BOARD_FILES = 8;
 
     /** Number of distinct pieces */
-    static final int PIECE_COUNT = 8;
+    public static final int PIECE_COUNT = 8;
 
     /** Number of bitboards on a position */
-    static final int STATE_SIZE = 9;
+    public static final int STATE_SIZE = 9;
 
     // -------------------------------------------------------------------
     // Board representation
     // -------------------------------------------------------------------
 
     /** South player name */
-    static final String SOUTH_NAME = "White";
+    public static final String SOUTH_NAME = "White";
 
     /** North player name */
-    static final String NORTH_NAME = "Black";
+    public static final String NORTH_NAME = "Black";
 
     /** South player symbol */
-    static final char SOUTH_SYMBOL = 'w';
+    public static final char SOUTH_SYMBOL = 'w';
 
     /** North player symbol */
-    static final char NORTH_SYMBOL = 'b';
+    public static final char NORTH_SYMBOL = 'b';
 
     // -------------------------------------------------------------------
     // Sense of movement for pawns
     // -------------------------------------------------------------------
 
-    static final int UP   =  8;
-    static final int DOWN =  72;
+    public static final int UP   =  8;
+    public static final int DOWN =  72;
 
     // -------------------------------------------------------------------
     // Piece indices
     // -------------------------------------------------------------------
 
-    static final int KING   =  0;
-    static final int QUEEN  =  1;
-    static final int ROOK   =  2;
-    static final int BISHOP =  3;
-    static final int KNIGHT =  4;
-    static final int PAWN   =  5;
-    static final int WHITE  =  6;
-    static final int BLACK  =  7;
-    static final int FLAGS  =  8;
+    public static final int KING   =  0;
+    public static final int QUEEN  =  1;
+    public static final int ROOK   =  2;
+    public static final int BISHOP =  3;
+    public static final int KNIGHT =  4;
+    public static final int PAWN   =  5;
+    public static final int WHITE  =  6;
+    public static final int BLACK  =  7;
+    public static final int FLAGS  =  8;
 
     // -------------------------------------------------------------------
     // Move type flags
     // -------------------------------------------------------------------
 
-    static final int UNFLAGGED    = (0b00 << 15);
-    static final int PROMOTION    = (0b01 << 15);
-    static final int ENPASSANT    = (0b10 << 15);
-    static final int CASTLING     = (0b11 << 15);
+    public static final int UNFLAGGED    = (0b00 << 15);
+    public static final int PROMOTION    = (0b01 << 15);
+    public static final int ENPASSANT    = (0b10 << 15);
+    public static final int CASTLING     = (0b11 << 15);
 
     // -------------------------------------------------------------------
     // Bitboard masks
     // -------------------------------------------------------------------
 
-    static final long RANK_ONE =    0x00000000000000FFL;
-    static final long RANK_TWO =    0x000000000000FF00L;
-    static final long RANK_SEVEN =  0x00FF000000000000L;
-    static final long RANK_EIGHT =  0xFF00000000000000L;
+    public static final long RANK_ONE =    0x00000000000000FFL;
+    public static final long RANK_TWO =    0x000000000000FF00L;
+    public static final long RANK_SEVEN =  0x00FF000000000000L;
+    public static final long RANK_EIGHT =  0xFF00000000000000L;
 
-    static final long RIGHT_FILES = 0xFEFEFEFEFEFEFEFEL;
-    static final long LEFT_FILES =  0x7F7F7F7F7F7F7F7FL;
-    static final long CASTLE_MASK = 0x8100000000000081L;
+    public static final long RIGHT_FILES = 0xFEFEFEFEFEFEFEFEL;
+    public static final long LEFT_FILES =  0x7F7F7F7F7F7F7F7FL;
+    public static final long CASTLE_MASK = 0x8100000000000081L;
 
-    static final long FULL_BOARD =  0xFFFFFFFFFFFFFFFFL;
-    static final long EMPTY_BOARD = 0x0000000000000000L;
-    static final long BOARD_SIDES = 0XFF818181818181FFL;
+    public static final long FULL_BOARD =  0xFFFFFFFFFFFFFFFFL;
+    public static final long EMPTY_BOARD = 0x0000000000000000L;
+    public static final long BOARD_SIDES = 0XFF818181818181FFL;
 
     // -------------------------------------------------------------------
     // Zobrist hashing
     // -------------------------------------------------------------------
 
-    static final long RANDOM_SEED = 0x6622E46E1DB096FAL;
-    static final long WHITE_SIGN =  0x506AACF489889342L;
-    static final long BLACK_SIGN =  0xD2B7ADEEDED1F73FL;
-
-    // -------------------------------------------------------------------
-    // Heuristic evaluation weights
-    // -------------------------------------------------------------------
-
-    static final int QUEEN_WEIGHT =  100;
-    static final int ROOK_WEIGHT =    54;
-    static final int BISHOP_WEIGHT =  46;
-    static final int KNIGHT_WEIGHT =  31;
-    static final int PAWN_WEIGHT =     8;
+    public static final long RANDOM_SEED = 0x6622E46E1DB096FAL;
+    public static final long WHITE_SIGN =  0x506AACF489889342L;
+    public static final long BLACK_SIGN =  0xD2B7ADEEDED1F73FL;
 
     // -------------------------------------------------------------------
     // Openings book
     // -------------------------------------------------------------------
 
     /** Minimum score for an opening move to be chosen */
-    static final double ROOT_THRESHOLD = -250.0D;
+    public static final double ROOT_THRESHOLD = -250.0D;
 
     /** Threshold on the highest opening move reward */
-    static final double ROOT_DISTURBANCE = 100.0D;
+    public static final double ROOT_DISTURBANCE = 100.0D;
 
     // -------------------------------------------------------------------
     // Board definitions

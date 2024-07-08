@@ -1,7 +1,5 @@
 package com.joansala.game.chess;
 
-import java.io.IOException;
-
 /*
  * Aalina engine.
  * Copyright (C) 2021-2024 Joan Sala Soler <contact@joansala.com>
@@ -21,11 +19,15 @@ import java.io.IOException;
  */
 
 import java.util.Arrays;
+
 import com.joansala.engine.Board;
+import com.joansala.engine.Scorer;
 import com.joansala.engine.base.BaseGame;
 import com.joansala.game.chess.Chess.Castle;
 import com.joansala.game.chess.Chess.Player;
 import com.joansala.util.hash.ZobristHash;
+
+import com.joansala.game.chess.scorers.*;
 import static com.joansala.util.bits.Bits.*;
 import static com.joansala.game.chess.Chess.*;
 import static com.joansala.game.chess.ChessGenerator.*;
@@ -44,6 +46,9 @@ public class ChessGame extends BaseGame {
 
     /** Capacity increases at least this value each time */
     private static final int CAPACITY_INCREMENT = 128;
+
+    /** Heuristic evaluation function */
+    private static final Scorer<ChessGame> scorer = scoreFunction();
 
     /** Hash code generator */
     private static final ZobristHash hasher = hashFunction();
@@ -190,6 +195,16 @@ public class ChessGame extends BaseGame {
 
 
     /**
+     * Obtain the current bitboard value on the given index.
+     *
+     * @return      Bitboard value
+     */
+    public final long state(int index) {
+        return state[index];
+    }
+
+
+    /**
      * Returns the current game bitboards.
      *
      * @return      Bitboards array reference
@@ -241,23 +256,7 @@ public class ChessGame extends BaseGame {
      */
     @Override
     public int score() {
-        int score = 0;
-
-        final long white = state[WHITE];
-        score += BISHOP_WEIGHT * count(white & state[BISHOP]);
-        score += KNIGHT_WEIGHT * count(white & state[KNIGHT]);
-        score += PAWN_WEIGHT * count(white & state[PAWN]);
-        score += QUEEN_WEIGHT * count(white & state[QUEEN]);
-        score += ROOK_WEIGHT * count(white & state[ROOK]);
-
-        final long black = state[BLACK];
-        score -= BISHOP_WEIGHT * count(black & state[BISHOP]);
-        score -= KNIGHT_WEIGHT * count(black & state[KNIGHT]);
-        score -= PAWN_WEIGHT * count(black & state[PAWN]);
-        score -= QUEEN_WEIGHT * count(black & state[QUEEN]);
-        score -= ROOK_WEIGHT * count(black & state[ROOK]);
-
-        return score;
+        return scorer.evaluate(this);
     }
 
 
@@ -678,6 +677,14 @@ public class ChessGame extends BaseGame {
 
             System.gc();
         }
+    }
+
+
+    /**
+     * Initialize the heuristic evaluation function.
+     */
+    private static Scorer<ChessGame> scoreFunction() {
+        return new PositionalScorer();
     }
 
 
