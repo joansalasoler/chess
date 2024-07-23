@@ -22,12 +22,11 @@ package com.joansala.game.chess;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import com.google.inject.Provides;
-import com.google.inject.Singleton;
 
 import com.joansala.cli.*;
 import com.joansala.engine.*;
 import com.joansala.engine.base.BaseModule;
-import com.joansala.engine.negamax.Negamax;
+import com.joansala.engine.mtd.MTDf;
 import com.joansala.book.base.BaseRoots;
 import com.joansala.cache.GameCache;
 import static com.joansala.game.chess.Chess.*;
@@ -80,7 +79,7 @@ public class ChessModule extends BaseModule {
     @Override protected void configure() {
         bind(Game.class).to(ChessGame.class);
         bind(Board.class).to(ChessBoard.class);
-        bind(Engine.class).to(Negamax.class);
+        bind(Engine.class).to(MTDf.class);
     }
 
 
