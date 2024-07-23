@@ -26,8 +26,8 @@ import com.joansala.engine.base.BaseGame;
 import com.joansala.game.chess.Chess.Castle;
 import com.joansala.game.chess.Chess.Player;
 import com.joansala.util.hash.ZobristHash;
+import com.joansala.game.chess.scorers.PositionalScorer;
 
-import com.joansala.game.chess.scorers.*;
 import static com.joansala.util.bits.Bits.*;
 import static com.joansala.game.chess.Chess.*;
 import static com.joansala.game.chess.ChessGenerator.*;
@@ -37,9 +37,6 @@ import static com.joansala.game.chess.ChessGenerator.*;
  * Reperesents a Chess game between two players.
  */
 public class ChessGame extends BaseGame {
-
-    /** Recommended score to evaluate draws */
-    public static final int CONTEMPT_SCORE = 0;
 
     /** Maximum number of plies this object can store */
     public static final int MAX_CAPACITY = Integer.MAX_VALUE / STATE_SIZE;
@@ -227,8 +224,36 @@ public class ChessGame extends BaseGame {
      * {@inheritDoc}
      */
     @Override
+    public int infinity() {
+        return INFINITY_SCORE;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int winner() {
+        final int score = outcome();
+
+        if (score == INFINITY_SCORE) {
+            return SOUTH;
+        }
+
+        if (score == -INFINITY_SCORE) {
+            return NORTH;
+        }
+
+        return DRAW;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int toCentiPawns(int score) {
-        return (int) (15.0 * score);
+        return (int) (score * 100.0 / PAWN_SCORE);
     }
 
 
@@ -247,7 +272,7 @@ public class ChessGame extends BaseGame {
     @Override
     public int outcome() {
         final boolean inCheck = movegen.isInCheck(state, player);
-        return inCheck ? rival.turn * MAX_SCORE : DRAW_SCORE;
+        return inCheck ? rival.turn * INFINITY_SCORE : DRAW_SCORE;
     }
 
 

@@ -148,6 +148,16 @@ public final class Chess {
     public static final long BLACK_SIGN =  0xD2B7ADEEDED1F73FL;
 
     // -------------------------------------------------------------------
+    // Evaluation scores
+    // -------------------------------------------------------------------
+
+    /** Maximum score to which states are evaluated */
+    public static final int INFINITY_SCORE = 2000;
+
+    /** Score of a single pawn */
+    public static final int PAWN_SCORE = 30;
+
+    // -------------------------------------------------------------------
     // Openings book
     // -------------------------------------------------------------------
 

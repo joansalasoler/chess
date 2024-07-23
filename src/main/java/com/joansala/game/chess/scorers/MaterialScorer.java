@@ -38,11 +38,11 @@ import static com.joansala.util.bits.Bits.*;
 public final class MaterialScorer implements Scorer<ChessGame> {
 
     /** Heuristic value of each piece */
-    private static final int QUEEN_WEIGHT =  100;
-    private static final int ROOK_WEIGHT =    54;
-    private static final int BISHOP_WEIGHT =  46;
-    private static final int KNIGHT_WEIGHT =  31;
-    private static final int PAWN_WEIGHT =     8;
+    private static final int QUEEN_WEIGHT =   170;
+    private static final int ROOK_WEIGHT =    108;
+    private static final int BISHOP_WEIGHT =   66;
+    private static final int KNIGHT_WEIGHT =   56;
+    private static final int PAWN_WEIGHT =     30;
 
 
     /**
@@ -54,17 +54,17 @@ public final class MaterialScorer implements Scorer<ChessGame> {
         final long white = game.state(WHITE);
         final long black = game.state(BLACK);
 
+        score += QUEEN_WEIGHT * count(white & game.state(QUEEN));
+        score += ROOK_WEIGHT * count(white & game.state(ROOK));
         score += BISHOP_WEIGHT * count(white & game.state(BISHOP));
         score += KNIGHT_WEIGHT * count(white & game.state(KNIGHT));
         score += PAWN_WEIGHT * count(white & game.state(PAWN));
-        score += QUEEN_WEIGHT * count(white & game.state(QUEEN));
-        score += ROOK_WEIGHT * count(white & game.state(ROOK));
 
+        score -= QUEEN_WEIGHT * count(black & game.state(QUEEN));
+        score -= ROOK_WEIGHT * count(black & game.state(ROOK));
         score -= BISHOP_WEIGHT * count(black & game.state(BISHOP));
         score -= KNIGHT_WEIGHT * count(black & game.state(KNIGHT));
         score -= PAWN_WEIGHT * count(black & game.state(PAWN));
-        score -= QUEEN_WEIGHT * count(black & game.state(QUEEN));
-        score -= ROOK_WEIGHT * count(black & game.state(ROOK));
 
         return score;
     }
