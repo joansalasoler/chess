@@ -22,7 +22,7 @@ package com.joansala.game.chess;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import com.google.inject.Provides;
-
+import com.google.inject.name.Named;
 import com.joansala.cli.*;
 import com.joansala.engine.*;
 import com.joansala.engine.base.BaseModule;
@@ -80,6 +80,15 @@ public class ChessModule extends BaseModule {
         bind(Game.class).to(ChessGame.class);
         bind(Board.class).to(ChessBoard.class);
         bind(Engine.class).to(MTDf.class);
+    }
+
+
+    /**
+     * Exploration bias factor for {@link UCT}.
+     */
+    @Provides @Named("BIAS")
+    public static double provideExplorationBias() {
+        return Math.sqrt(2) / 16D;
     }
 
 
