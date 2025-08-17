@@ -105,7 +105,7 @@ public class ChessGame extends BaseGame {
         cursors = new int[capacity];
         hashes = new long[capacity];
         states = new long[capacity * STATE_SIZE];
-        setBoard(new ChessBoard());
+        setStartingBoard(new ChessBoard());
     }
 
 
@@ -122,7 +122,7 @@ public class ChessGame extends BaseGame {
      * {@inheritDoc}
      */
     @Override
-    public Board getBoard() {
+    public Board getStartingBoard() {
         return board;
     }
 
@@ -131,15 +131,15 @@ public class ChessGame extends BaseGame {
      * {@inheritDoc}
      */
     @Override
-    public void setBoard(Board board) {
-        setBoard((ChessBoard) board);
+    public void setStartingBoard(Board board) {
+        setStartingBoard((ChessBoard) board);
     }
 
 
     /**
-     * {@see #setBoard(Board)}
+     * {@see #setStartingBoard(Board)}
      */
-    public void setBoard(ChessBoard board) {
+    public void setStartingBoard(ChessBoard board) {
         this.index = -1;
         this.advance = -1;
         this.board = board;
@@ -183,7 +183,7 @@ public class ChessGame extends BaseGame {
      * {@inheritDoc}
      */
     @Override
-    public ChessBoard toBoard() {
+    public ChessBoard getCurrentBoard() {
         int turn = player.turn;
         int clock = index - advance;
         int fullmove = board.fullmove() + length() / 2;

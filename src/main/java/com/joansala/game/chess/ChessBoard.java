@@ -151,8 +151,8 @@ public class ChessBoard extends BaseBoard<long[]> {
      * {@inheritDoc}
      */
     @Override
-    public int toMove(String coordinate) {
-        return toMove(position, coordinate);
+    public int parseCoordinates(String coordinate) {
+        return parseCoordinates(position, coordinate);
     }
 
 
@@ -189,7 +189,7 @@ public class ChessBoard extends BaseBoard<long[]> {
      * @param coordinate    Move coordinates
      * @return              Encoded move
      */
-    private int toMove(long[] position, String coordinate) {
+    private int parseCoordinates(long[] position, String coordinate) {
         String origin = coordinate.substring(0, 2);
         String target = coordinate.substring(2, 4);
 
@@ -239,7 +239,7 @@ public class ChessBoard extends BaseBoard<long[]> {
      * {@inheritDoc}
      */
     @Override
-    public int[] toMoves(String notation) {
+    public int[] parseNotation(String notation) {
         if (notation == null || notation.isBlank()) {
             return new int[0];
         }
@@ -248,13 +248,13 @@ public class ChessBoard extends BaseBoard<long[]> {
         int[] moves = new int[coordinates.length];
 
         synchronized (game) {
-            game.setBoard(this);
+            game.setStartingBoard(this);
             game.ensureCapacity(moves.length);
 
             for (int i = 0; i < coordinates.length; i++) {
                 long[] state = game.state();
                 String coordinate = coordinates[i];
-                moves[i] = toMove(state, coordinate);
+                moves[i] = parseCoordinates(state, coordinate);
                 game.makeMove(moves[i]);
             }
         }
@@ -267,7 +267,7 @@ public class ChessBoard extends BaseBoard<long[]> {
      * {@inheritDoc}
      */
     @Override
-    public ChessBoard toBoard(String notation) {
+    public ChessBoard fromDiagram(String notation) {
         String[] fields = notation.split(" ");
 
         long[] position = toPosition(fen.toArray(fields[0]));
