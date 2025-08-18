@@ -14,7 +14,7 @@ import com.joansala.util.suites.SuiteReader;
 public class ChessBoardTest implements BoardContract {
 
     /** Test suite file path */
-    private static String SUITE_PATH = "chess-bench.suite";
+    private static String SUITE_PATH = "src/test/resources/chess-bench.suite";
 
 
     /**
