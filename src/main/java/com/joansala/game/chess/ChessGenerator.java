@@ -19,6 +19,7 @@ package com.joansala.game.chess;
  */
 
 import java.util.Arrays;
+
 import com.joansala.game.chess.attacks.*;
 import static com.joansala.engine.Game.*;
 import static com.joansala.util.bits.Bits.*;
@@ -81,7 +82,11 @@ public class ChessGenerator {
 
 
     /**
-     * Move generation stage for a cursor.
+     * Extracts the move generation stage from a cursor.
+     *
+     * @param cursor    Generation cursor containing stage information
+     * @return          Stage number (0-14) indicating which type of
+     *                  moves to generate
      */
     public int getStage(int cursor) {
         return (cursor >> 8) & 0x1F;
@@ -89,7 +94,10 @@ public class ChessGenerator {
 
 
     /**
-     * Generated move for a cursor.
+     * Extracts the encoded move from a cursor.
+     *
+     * @param cursor    Generation cursor containing move information
+     * @return          Encoded move value
      */
     public int getMove(int cursor) {
         return (cursor >> 14);
@@ -97,7 +105,11 @@ public class ChessGenerator {
 
 
     /**
-     * Returns if a player's king is in check on a game state.
+     * Determines if a player's king is currently in check.
+     *
+     * @param state     Bitboards representing the current game state
+     * @param player    Player whose king to check
+     * @return          If the king is in check
      */
     public boolean isInCheck(long[] state, Player player) {
         final long evasions = computeEvasions(state, player);
@@ -106,8 +118,13 @@ public class ChessGenerator {
 
 
     /**
-     * Returns if a game state contains legal moves. This method generates
-     * the first set of moves and returns true if it is empty.
+     * Checks if a player is in checkmate or stalemate by generating the
+     * first set of moves and verifiying if the result is empty.
+     *
+     * @param slot      Storage slot to use for move generation
+     * @param state     Bitboards representing the current game state
+     * @param player    Player to check for available moves
+     * @return          If no legal moves exist
      */
     public boolean cannotMove(int slot, long[] state, Player player) {
         final Entry entry = store[slot];
@@ -228,15 +245,15 @@ public class ChessGenerator {
             case  1: storeCastlings(taken, flags); break;
             case  2: storePromotions(pawns, taken, rivals, mask); break;
             case  3: storePawnCaptures(pawns, taken, mask & rivals); break;
-            case  4: storeKnightMoves(knights, taken, mask & rivals); break;
-            case  5: storeBishopMoves(bishops, taken, mask & rivals); break;
-            case  6: storeRookMoves(rooks, taken, mask & rivals); break;
-            case  7: storeQueenMoves(queens, taken, mask & rivals); break;
+            case  4: storePieceMoves(KNIGHT, knights, taken, mask & rivals); break;
+            case  5: storePieceMoves(BISHOP, bishops, taken, mask & rivals); break;
+            case  6: storePieceMoves(ROOK, rooks, taken, mask & rivals); break;
+            case  7: storePieceMoves(QUEEN, queens, taken, mask & rivals); break;
             case  8: storeEnPassants(pawns, taken, flags); break;
-            case  9: storeKnightMoves(knights, taken, mask & ~rivals); break;
-            case 10: storeBishopMoves(bishops, taken, mask & ~rivals); break;
-            case 11: storeRookMoves(rooks, taken, mask & ~rivals); break;
-            case 12: storeQueenMoves(queens, taken, mask & ~rivals); break;
+            case  9: storePieceMoves(KNIGHT, knights, taken, mask & ~rivals); break;
+            case 10: storePieceMoves(BISHOP, bishops, taken, mask & ~rivals); break;
+            case 11: storePieceMoves(ROOK, rooks, taken, mask & ~rivals); break;
+            case 12: storePieceMoves(QUEEN, queens, taken, mask & ~rivals); break;
             case 13: storePawnMoves(pawns, taken, mask); break;
         }
     }
@@ -265,73 +282,20 @@ public class ChessGenerator {
 
 
     /**
-     * Generate the legal moves of knights.
+     * Generate the legal moves for a piece type.
      *
-     * @param knights   Player knights bitboard
+     * @param pieces    Player pieces bitboard
      * @param taken     Bitboard of occupied checkers
      * @param mask      Bitboard of allowed checkers
+     * @param pieceType Piece type constant
      */
-    private void storeKnightMoves(long knights, long taken, long mask) {
-        while (empty(knights) == false) {
-            final int from = first(knights);
-            final long attacks = Knight.attacks(from);
+    private void storePieceMoves(int pieceType, long pieces, long taken, long mask) {
+        while (empty(pieces) == false) {
+            final int from = first(pieces);
+            final long attacks = getAttacks(pieceType, from, taken);
             final long targets = attacks & mask & pins(from, taken);
-            store(UNFLAGGED, KNIGHT, from, targets);
-            knights ^= bit(from);
-        }
-    }
-
-
-    /**
-     * Generate the legal moves of bishops.
-     *
-     * @param bishops   Player bishops bitboard
-     * @param taken     Bitboard of occupied checkers
-     * @param mask      Bitboard of allowed checkers
-     */
-    private void storeBishopMoves(long bishops, long taken, long mask) {
-        while (empty(bishops) == false) {
-            final int from = first(bishops);
-            final long attacks = Bishop.attacks(from, taken);
-            final long targets = attacks & mask & pins(from, taken);
-            store(UNFLAGGED, BISHOP, from, targets);
-            bishops ^= bit(from);
-        }
-    }
-
-
-    /**
-     * Generate the legal moves of rooks.
-     *
-     * @param rooks     Player rooks bitboard
-     * @param taken     Bitboard of occupied checkers
-     * @param mask      Bitboard of allowed checkers
-     */
-    private void storeRookMoves(long rooks, long taken, long mask) {
-        while (empty(rooks) == false) {
-            final int from = first(rooks);
-            final long attacks = Rook.attacks(from, taken);
-            final long targets = attacks & mask & pins(from, taken);
-            store(UNFLAGGED, ROOK, from, targets);
-            rooks ^= bit(from);
-        }
-    }
-
-
-    /**
-     * Generate the legal moves of queens.
-     *
-     * @param queens    Player queens bitboard
-     * @param taken     Bitboard of occupied checkers
-     * @param mask      Bitboard of allowed checkers
-     */
-    private void storeQueenMoves(long queens, long taken, long mask) {
-        while (empty(queens) == false) {
-            final int from = first(queens);
-            final long attacks = Queen.attacks(from, taken);
-            final long targets = attacks & mask & pins(from, taken);
-            store(UNFLAGGED, QUEEN, from, targets);
-            queens ^= bit(from);
+            store(UNFLAGGED, pieceType, from, targets);
+            pieces ^= bit(from);
         }
     }
 
@@ -399,27 +363,8 @@ public class ChessGenerator {
             long lefts = Pawn.lefts(pawns, sense) & mask;
             long rights = Pawn.rights(pawns, sense) & mask;
 
-            while (empty(lefts) == false) {
-                final int to = first(lefts);
-                final int from = to - oneRow + 1;
-                final long pins = pins(from, taken);
-                lefts ^= bit(to);
-
-                if (contains(pins, bit(to))) {
-                    store(UNFLAGGED, PAWN, from, to);
-                }
-            }
-
-            while (empty(rights) == false) {
-                final int to = first(rights);
-                final int from = to - oneRow - 1;
-                final long pins = pins(from, taken);
-                rights ^= bit(to);
-
-                if (contains(pins, bit(to))) {
-                    store(UNFLAGGED, PAWN, from, to);
-                }
-            }
+            processPawnTargets(lefts, oneRow - 1, taken);
+            processPawnTargets(rights, oneRow + 1, taken);
         }
     }
 
@@ -441,27 +386,8 @@ public class ChessGenerator {
             long doubles = Pawn.doubles(bases, taken, sense) & mask;
             long singles = Pawn.singles(pawns, taken, sense) & mask;
 
-            while (empty(doubles) == false) {
-                final int to = first(doubles);
-                final int from = to - twoRows;
-                final long pins = pins(from, taken);
-                doubles ^= bit(to);
-
-                if (contains(pins, bit(to))) {
-                    store(UNFLAGGED, PAWN, from, to);
-                }
-            }
-
-            while (empty(singles) == false) {
-                final int to = first(singles);
-                final int from = to - oneRow;
-                final long pins = pins(from, taken);
-                singles ^= bit(to);
-
-                if (contains(pins, bit(to))) {
-                    store(UNFLAGGED, PAWN, from, to);
-                }
-            }
+            processPawnTargets(doubles, twoRows, taken);
+            processPawnTargets(singles, oneRow, taken);
         }
     }
 
@@ -471,7 +397,7 @@ public class ChessGenerator {
      *
      * @param pawns     Player pawns bitboard
      * @param taken     Bitboard of occupied checkers
-     * @param taken     Bitboard of rival pieces
+     * @param rivals    Bitboard of rival pieces
      * @param mask      Bitboard of allowed checkers
      */
     private void storePromotions(long pawns, long taken, long rivals, long mask) {
@@ -482,53 +408,82 @@ public class ChessGenerator {
             long rights = Pawn.rights(pawns, sense) & rivals & mask;
             long singles = Pawn.singles(pawns, taken, sense) & mask;
 
-            while (empty(lefts) == false) {
-                final int to = first(lefts);
-                final int from = (to ^ 0x8) + 1;
-                final long pins = pins(from, taken);
-                lefts ^= bit(to);
+            processPromotionTargets(lefts, 1, taken);
+            processPromotionTargets(rights, -1, taken);
+            processPromotionTargets(singles, 0, taken);
+        }
+    }
 
-                if (contains(pins, bit(to))) {
-                    store(PROMOTION, QUEEN, from, to);
-                    store(PROMOTION, KNIGHT, from, to);
-                    store(PROMOTION, BISHOP, from, to);
-                    store(PROMOTION, ROOK, from, to);
-                }
-            }
 
-            while (empty(rights) == false) {
-                final int to = first(rights);
-                final int from = (to ^ 0x8) - 1;
-                final long pins = pins(from, taken);
-                rights ^= bit(to);
+    /**
+     * Processes pawn promotion moves and stores them.
+     *
+     * @param targets   Bitboard of promotion destination squares
+     * @param offset    File offset to calculate source square
+     * @param taken     Bitboard of occupied squares
+     */
+    private void processPromotionTargets(long targets, int offset, long taken) {
+        while (empty(targets) == false) {
+            final int to = first(targets);
+            final int from = (to ^ 0x8) + offset;
+            final long pins = pins(from, taken);
+            targets ^= bit(to);
 
-                if (contains(pins, bit(to))) {
-                    store(PROMOTION, QUEEN, from, to);
-                    store(PROMOTION, KNIGHT, from, to);
-                    store(PROMOTION, BISHOP, from, to);
-                    store(PROMOTION, ROOK, from, to);
-                }
-            }
-
-            while (empty(singles) == false) {
-                final int to = first(singles);
-                final int from = (to ^ 0x8);
-                final long pins = pins(from, taken);
-                singles ^= bit(to);
-
-                if (contains(pins, bit(to))) {
-                    store(PROMOTION, QUEEN, from, to);
-                    store(PROMOTION, KNIGHT, from, to);
-                    store(PROMOTION, BISHOP, from, to);
-                    store(PROMOTION, ROOK, from, to);
-                }
+            if (contains(pins, bit(to))) {
+                store(PROMOTION, QUEEN, from, to);
+                store(PROMOTION, KNIGHT, from, to);
+                store(PROMOTION, BISHOP, from, to);
+                store(PROMOTION, ROOK, from, to);
             }
         }
     }
 
 
     /**
-     * Returns if the king is currently in check.
+     * Processes regular pawn moves and stores them.
+     *
+     * @param targets   Bitboard of pawn destination squares
+     * @param rowOffset Row offset to calculate source square
+     * @param taken     Bitboard of occupied squares
+     */
+    private void processPawnTargets(long targets, int rowOffset, long taken) {
+        while (empty(targets) == false) {
+            final int to = first(targets);
+            final int from = to - rowOffset;
+            final long pins = pins(from, taken);
+            targets ^= bit(to);
+
+            if (contains(pins, bit(to))) {
+                store(UNFLAGGED, PAWN, from, to);
+            }
+        }
+    }
+
+
+    /**
+     * Computes the attack bitboard for a specific piece type.
+     *
+     * @param pieceType Type of piece (KNIGHT, BISHOP, ROOK, or QUEEN)
+     * @param from      Square index where the piece is located
+     * @param taken     Bitboard of all occupied squares
+     * @return          Bitboard of squares the piece can attack
+     * @throws IllegalArgumentException if pieceType is invalid
+     */
+    private long getAttacks(int pieceType, int from, long taken) {
+        switch (pieceType) {
+            case KNIGHT: return Knight.attacks(from);
+            case BISHOP: return Bishop.attacks(from, taken);
+            case ROOK: return Rook.attacks(from, taken);
+            case QUEEN: return Queen.attacks(from, taken);
+            default: throw new IllegalArgumentException("Invalid piece");
+        }
+    }
+
+
+    /**
+     * Checks if the current player's king is in check.
+     *
+     * @return      If king is in check
      */
     private boolean isKingInCheck() {
         return evasions != FULL_BOARD;
@@ -536,7 +491,9 @@ public class ChessGenerator {
 
 
     /**
-     * Returns if the king is currently in double check.
+     * Checks if the current player's king is in double check.
+     *
+     * @return      If king is attacked by two pieces
      */
     private boolean isKingInDoubleCheck() {
         return evasions == EMPTY_BOARD;
@@ -544,11 +501,11 @@ public class ChessGenerator {
 
 
     /**
-     * Check if the given square is attacked by rival pieces.
+     * Determines if a square is under attack by any opponent piece.
      *
-     * @param checker       Checker to examine
-     * @param taken         Bitboard of occupied checkers
-     * @return              If the checker is attacked
+     * @param checker   Square index to check for attacks
+     * @param taken     Bitboard of all occupied squares
+     * @return          If the square is attacked by any opponent piece
      */
     private boolean isAttacked(int checker, long taken) {
         final long rivals = state[1 ^ player.side];
@@ -558,21 +515,24 @@ public class ChessGenerator {
         final long pawns = state[PAWN] & rivals;
         final long king = state[KING] & rivals;
 
-        return
-        contains(pawns, Pawn.attacks(checker, player.sense)) ||
-        contains(bishops, Bishop.attacks(checker, taken)) ||
-        contains(rooks, Rook.attacks(checker, taken)) ||
-        contains(knights, Knight.attacks(checker)) ||
-        contains(king, King.attacks(checker));
+        return (
+            contains(pawns, Pawn.attacks(checker, player.sense)) ||
+            contains(bishops, Bishop.attacks(checker, taken)) ||
+            contains(rooks, Rook.attacks(checker, taken)) ||
+            contains(knights, Knight.attacks(checker)) ||
+            contains(king, King.attacks(checker))
+        );
     }
 
 
     /**
-     * Checks if two spots are attacked by rival pieces.
+     * Checks if either of two squares is under attack by opponent pieces.
+     * Used for castling validation to ensure the king doesn't pass
+     * through check.
      *
-     * @param spots         Spots array of lenght two
-     * @param taken         Bitboard of occupied checkers
-     * @return              If the checkers are attacked
+     * @param spots     Array of exactly two square indices to check
+     * @param taken     Bitboard of all occupied squares
+     * @return          If either square is attacked by opponent pieces
      */
     private boolean areAttacked(int[] spots, long taken) {
         return isAttacked(spots[0], taken) || isAttacked(spots[1], taken);
@@ -580,7 +540,8 @@ public class ChessGenerator {
 
 
     /**
-     * Bitboard of check evasions by pieces other than the king.
+     * Computes a bitboard mask of legal destination squares for pieces
+     * when the king is in check.
      *
      * The returned bitboard contains the checkers from which the attacking
      * pieces can be captured or their attacks blocked. This does not include
@@ -591,6 +552,10 @@ public class ChessGenerator {
      * b) If the returned bitboard is empty the king is in double check.
      * c) A piece cannot move to a square not contained on the evasions.
      *    Except fot the en-passant capture if any.
+     *
+     * @param state     Bitboards representing the current game state
+     * @param player    Player whose king might be in check
+     * @return          Bitboard mask of legal destination squares
      */
     private long computeEvasions(long[] state, Player player) {
         final long rivals = state[1 ^ player.side];
@@ -637,43 +602,40 @@ public class ChessGenerator {
 
 
     /**
-     * Returns a bitboard mask of possible moves for a pinned piece.
+     * Calculates movement restrictions for a potentially pinned piece.
+     * A piece is pinned if moving it would expose the king to check.
      *
-     * If the piece is not pinned this method returns a full board,
-     * otherwise the ray of checkers to which the piece is pinned.
-     *
-     * @param from      Checker were the piece is placed
-     * @param taken     Bitboar of occupied checkers
-     * @return          Pinned piece bitboard mask
+     * @param from      Square index where the piece is located
+     * @param taken     Bitboard of all occupied squares
+     * @return          FULL_BOARD if piece is not pinned, otherwise a ray
+     *                  bitboard representing the only legal movement
+     *                  direction for the pinned piece
      */
     private long pins(int from, long taken) {
         final long rivals = state[1 ^ player.side];
-        final long rooks = (state[QUEEN] | state[ROOK]) & rivals;
-        final long bishops = (state[QUEEN] | state[BISHOP]) & rivals;
         final long king = state[KING] & ~rivals;
         final int target = first(king);
         final long ray = Ray.ray(target, from);
 
-        if (empty(ray) == true) {
+        if (empty(ray)) {
             return FULL_BOARD;
         }
 
-        final boolean inSameFile = empty((from ^ target) & 7);
-        final boolean inSameRank = empty((from ^ target) & 56);
+        final long diff = from ^ target;
 
-        if (inSameFile || inSameRank) {
-            if (contains(rooks, ray)) {
+        if (empty((diff & 7) * (diff & 56))) { // In same row or column
+            final long attackers = (state[QUEEN] | state[ROOK]) & rivals;
+
+            if (contains(attackers, ray)) {
                 final long attacks = Rook.attacks(from, taken);
-                final boolean isKing = contains(attacks, king);
-                final boolean isRook = contains(ray & attacks, rooks);
-                return (isKing && isRook) ? ray : FULL_BOARD;
+                return pinsRay(attackers, ray, king, attacks);
             }
         } else {
-            if (contains(bishops, ray)) {
+            final long attackers = (state[QUEEN] | state[BISHOP]) & rivals;
+
+            if (contains(attackers, ray)) {
                 final long attacks = Bishop.attacks(from, taken);
-                final boolean isKing = contains(attacks, king);
-                final boolean isBishop = contains(ray & attacks, bishops);
-                return (isKing && isBishop) ? ray : FULL_BOARD;
+                return pinsRay(attackers, ray, king, attacks);
             }
         }
 
@@ -682,10 +644,28 @@ public class ChessGenerator {
 
 
     /**
-     * Unpacks a new set of moves on the current slot.
+     * Checks if there's an attacking piece on the ray and if the piece's
+     * attacks include the king.
+     *
+     * @param attackers     Bitboard of potential attacking pieces
+     * @param ray           Ray bitboard from king to the piece being checked
+     * @param king          Bitboard containing only the king position
+     * @param attacks       Attack bitboard from the piece being checked for pins
+     * @return              Ray bitboard if piece is pinned, FULL_BOARD otherwise
+     */
+    private long pinsRay(long attackers, long ray, long king, long attacks) {
+        final boolean hasKing = contains(attacks, king);
+        final boolean hasAttacker = contains(ray & attacks, attackers);
+        return (hasKing && hasAttacker) ? ray : FULL_BOARD;
+    }
+
+
+    /**
+     * Unpacks a bitboard of target squares into individual encoded moves.
+     * Each set bit in targets becomes a separate move.
      *
      * @param move      Base move encoding
-     * @param targets   Destination checkers bitboard
+     * @param targets   Bitboard of destination squares
      */
     private void unpack(int move, long targets) {
         while (empty(targets) == false) {
@@ -697,12 +677,13 @@ public class ChessGenerator {
 
 
     /**
-     * Appends a new set of flagged moves to the current slot.
+     * Stores multiple moves with the same source and piece type to the
+     * current slot. Only processes if targets bitboard is not empty.
      *
      * @param flag      Move type flag
-     * @param piece     Piece to place at target
-     * @param from      Origin checker
-     * @param targets   Destination checkers bitboard
+     * @param piece     Piece type constant
+     * @param from      Source square index
+     * @param targets   Bitboard of destination squares
      */
     private void store(int flag, int piece, int from, long targets) {
         if (empty(targets) == false) {
@@ -712,12 +693,12 @@ public class ChessGenerator {
 
 
     /**
-     * Appends a new flagged move to the current slot.
+     * Stores a single move to the current slot.
      *
      * @param flag      Move type flag
-     * @param piece     Piece to place at target
-     * @param from      Origin checker
-     * @param to        Destination checker
+     * @param piece     Piece type constant
+     * @param from      Source square index
+     * @param to        Destination square index
      */
     private void store(int flag, int piece, int from, int to) {
         store(flag | (piece << 12) | (from << 6) | to);
@@ -725,9 +706,9 @@ public class ChessGenerator {
 
 
     /**
-     * Appends an encoded move to the current slot.
+     * Stores a fully encoded move to the current slot.
      *
-     * @param move      Move encoding
+     * @param move      Encoding containing all move information
      */
     private void store(int move) {
         moves[index++] = move;
@@ -735,9 +716,10 @@ public class ChessGenerator {
 
 
     /**
-     * Inreases the number of slots of this generator.
+     * Increases the storage capacity of this generator to accommodate
+     * more slots.
      *
-     * @param size          New slot size
+     * @param size      New number of slots
      */
     public void ensureCapacity(int size) {
         if (size > capacity) {
@@ -775,7 +757,10 @@ public class ChessGenerator {
 
 
         /**
-         * Check if moves were  generated.
+         * Checks if moves for a stage have already been generated.
+         *
+         * @param stage     Stage number to check
+         * @return          If stage is within the current generation range
          */
         boolean isCurrentStage(int stage) {
             return stage >= currentStage && stage < nextStage;
@@ -783,7 +768,9 @@ public class ChessGenerator {
 
 
         /**
-         * Check if no moves were generated for an entry.
+         * Checks if this entry is in its initial state.
+         *
+         * @return  If no move generation has been performed
          */
         boolean isStartStage() {
             return currentStage == START_STAGE;
@@ -791,7 +778,7 @@ public class ChessGenerator {
 
 
         /**
-         * Reset this entry to its initial state.
+         * Resets this entry to its initial state.
          */
         void clear() {
             currentStage = START_STAGE;
