@@ -25,6 +25,7 @@ import com.joansala.except.IllegalMoveException;
 import com.joansala.util.bits.BitsetConverter;
 import com.joansala.util.notation.CoordinateConverter;
 import com.joansala.util.notation.DiagramConverter;
+
 import static com.joansala.util.bits.Bits.*;
 import static com.joansala.game.chess.Chess.*;
 import static com.joansala.game.chess.ChessGame.*;
@@ -457,6 +458,16 @@ public class ChessBoard extends BaseBoard<long[]> {
      */
     private boolean isEnPassant(int piece, int from, int to) {
         return piece == PAWN && (to - from) % BOARD_FILES != 0;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long hash() {
+        Player player = (turn == SOUTH) ? Player.SOUTH : Player.NORTH;
+        return ChessGame.computeHash(player, position);
     }
 
 
