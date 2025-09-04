@@ -48,7 +48,6 @@ public class ChessRoots extends UCTRoots {
      */
     public ChessRoots(String path) throws IOException {
         super(path);
-        setDisturbance(ROOT_DISTURBANCE);
         setThreshold(ROOT_THRESHOLD);
         setInfinity(MAX_SCORE);
     }

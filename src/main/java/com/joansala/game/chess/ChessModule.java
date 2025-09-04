@@ -57,12 +57,6 @@ public class ChessModule extends BaseModule {
         private static String roots = ChessRoots.ROOTS_PATH;
 
         @Option(
-          names = "--roots-disturbance",
-          description = "Openings book root disturbance"
-        )
-        private static int disturbance = ROOT_DISTURBANCE;
-
-        @Option(
           names = "--roots-threshold",
           description = "Openings book root threshold"
         )
@@ -122,7 +116,6 @@ public class ChessModule extends BaseModule {
 
         try {
             ChessRoots roots = new ChessRoots(path);
-            roots.setDisturbance(ChessCommand.disturbance);
             roots.setThreshold(ChessCommand.threshold);
             return roots;
         } catch (Exception e) {
